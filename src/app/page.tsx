@@ -1,65 +1,176 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect, lazy, Suspense } from "react";
+import Link from "next/link";
+import Navbar from "@/components/Navbar";
+import ArticleCard from "@/components/ArticleCard";
+import Footer from "@/components/Footer";
+import { Article, Category, CATEGORY_LABELS } from "@/lib/types";
+import { useLocalStorage } from "@/lib/useLocalStorage";
+
+const HeroScene = lazy(() => import("@/components/HeroScene"));
+const SceneBackground = lazy(() =>
+  import("@/components/HeroScene").then((mod) => ({ default: mod.SceneBackground }))
+);
+
+interface CategoryPreview {
+  category: Category;
+  total: number;
+  articles: Article[];
+}
+
+// Static fallback hero (no Three.js)
+function FallbackHero() {
+  return (
+    <section className="h-[70vh] flex flex-col items-center justify-center px-6 text-center">
+      <div className="mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full card-bg backdrop-blur-sm border border-border-light">
+          <span className="w-1.5 h-1.5 rounded-full bg-terracotta animate-pulse" />
+          <span className="text-xs text-slate-medium font-medium tracking-wide">Live from 34+ sources</span>
+        </div>
+      </div>
+      <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-light text-slate-primary leading-[1.05] tracking-tight max-w-4xl">
+        Research,<br /><span className="text-terracotta">distilled.</span>
+      </h1>
+      <p className="mt-6 text-base md:text-lg text-slate-light max-w-lg leading-relaxed">
+        Blockchain, AI, game theory ve daha fazlasından seçilmiş araştırma ve makaleler — tek bir yerde.
+      </p>
+    </section>
+  );
+}
 
 export default function Home() {
+  const [categories, setCategories] = useState<CategoryPreview[]>([]);
+  const [total, setTotal] = useState(0);
+  const [totalSources, setTotalSources] = useState(0);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [sceneReady, setSceneReady] = useState(false);
+  const [bookmarks, setBookmarks] = useLocalStorage<string[]>("rh-bookmarks", []);
+  const [readArticles] = useLocalStorage<string[]>("rh-read", []);
+
+  // Load data first, Three.js later
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/preview");
+        const data = await res.json();
+        setCategories(data.categories || []);
+        setTotal(data.total || 0);
+        setTotalSources(data.totalSources || 0);
+        setLastUpdated(data.lastUpdated || null);
+      } catch { /* ignore */ }
+      setLoading(false);
+    })();
+  }, []);
+
+  // Delay Three.js load until after content is painted
+  useEffect(() => {
+    const timer = setTimeout(() => setSceneReady(true), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const toggleBookmark = (id: string) => {
+    setBookmarks((prev) => prev.includes(id) ? prev.filter((b) => b !== id) : [...prev, id]);
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex flex-col min-h-full relative">
+      {/* 3D background — loads after content */}
+      {sceneReady && (
+        <Suspense fallback={null}>
+          <SceneBackground />
+        </Suspense>
+      )}
+
+      <Navbar activeCategory="all" onCategoryChange={() => {}} />
+
+      <main className="flex-1 relative z-10">
+        {/* Hero — fallback first, 3D when ready */}
+        {sceneReady ? (
+          <Suspense fallback={<FallbackHero />}>
+            <HeroScene />
+          </Suspense>
+        ) : (
+          <FallbackHero />
+        )}
+
+        {/* Stats */}
+        <div className="max-w-[1200px] mx-auto px-6 md:px-10 mb-12">
+          <div className="flex flex-wrap items-center gap-4 md:gap-6 text-xs text-slate-muted">
+            <span><strong className="text-slate-medium font-medium">{total}</strong> articles</span>
+            <span><strong className="text-slate-medium font-medium">{totalSources}</strong> sources</span>
+            {lastUpdated && (
+              <span>
+                Updated {new Date(lastUpdated).toLocaleString("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+              </span>
+            )}
+            {loading && (
+              <span className="inline-flex items-center gap-1.5 text-terracotta">
+                <span className="w-1.5 h-1.5 rounded-full bg-terracotta animate-pulse" />
+                Loading...
+              </span>
+            )}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Category previews */}
+        <div className="max-w-[1200px] mx-auto px-6 md:px-10 space-y-16">
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="card-bg backdrop-blur-sm rounded-xl border border-border-light p-6 animate-pulse">
+                  <div className="flex justify-between mb-3">
+                    <div className="h-5 w-20 bg-ivory-dark rounded-full" />
+                    <div className="h-4 w-16 bg-ivory-dark rounded" />
+                  </div>
+                  <div className="h-5 w-full bg-ivory-dark rounded mb-2" />
+                  <div className="h-5 w-3/4 bg-ivory-dark rounded mb-4" />
+                  <div className="space-y-2">
+                    <div className="h-3 w-full bg-ivory-dark rounded" />
+                    <div className="h-3 w-5/6 bg-ivory-dark rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            categories.map(({ category, total: catTotal, articles }) => (
+              <section key={category}>
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="font-serif text-2xl font-medium text-slate-primary">{CATEGORY_LABELS[category]}</h2>
+                    <p className="text-xs text-slate-muted mt-1">{catTotal} articles</p>
+                  </div>
+                  <Link
+                    href={`/category/${category}`}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-border text-xs font-medium text-slate-medium hover:text-terracotta hover:border-terracotta/30 transition-colors"
+                  >
+                    View all
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M4 2L8 6L4 10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {articles.map((article) => (
+                    <ArticleCard
+                      key={article.id}
+                      article={article}
+                      onSaveSummary={() => {}}
+                      isBookmarked={bookmarks.includes(article.id)}
+                      isRead={readArticles.includes(article.id)}
+                      onToggleBookmark={toggleBookmark}
+                    />
+                  ))}
+                </div>
+              </section>
+            ))
+          )}
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }
