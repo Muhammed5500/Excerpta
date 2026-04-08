@@ -62,8 +62,8 @@
   --accent-dark: #c6613f;
   --border-base: #2a2a27;
   --border-subtle: #1e1e1c;
-  --card-bg: rgba(26, 26, 24, 0.70);
-  --card-bg-hover: rgba(30, 30, 28, 0.85);
+  --card-bg: rgba(26, 26, 24, 0.85);
+  --card-bg-hover: rgba(30, 30, 28, 0.92);
   --nav-bg: rgba(15, 15, 14, 0.75);
   --scene-bg: #0f0f0e;
   --canvas-bg: transparent;
