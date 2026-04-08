@@ -28,8 +28,8 @@ function FallbackHero() {
       <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-light text-slate-primary leading-[1.05] tracking-tight max-w-4xl">
         Research,<br /><span className="text-terracotta">distilled.</span>
       </h1>
-      <p className="mt-6 text-base md:text-lg text-slate-light max-w-lg leading-relaxed">
-        Blockchain, AI, game theory ve daha fazlasından seçilmiş araştırma ve makaleler — tek bir yerde.
+      <p className="mt-6 text-base md:text-lg text-slate-medium max-w-lg leading-relaxed">
+        Curated research and articles on blockchain, AI, game theory, and more — all in one place.
       </p>
     </section>
   );
@@ -90,7 +90,7 @@ export default function Home() {
             <span><strong className="text-slate-medium font-medium">{totalSources}</strong> sources</span>
             {lastUpdated && (
               <span>
-                Updated {new Date(lastUpdated).toLocaleString("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                Updated {new Date(lastUpdated).toLocaleString("en-US", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
               </span>
             )}
             {loading && (

@@ -22,7 +22,7 @@ const sourceSerif = Source_Serif_4({
 export const metadata: Metadata = {
   title: "Excerpta — Curated Research & Articles",
   description:
-    "Blockchain, AI, game theory ve daha fazlasından seçilmiş araştırma ve makaleler — tek bir yerde.",
+    "Curated research and articles on blockchain, AI, game theory, and more — all in one place.",
 };
 
 export default function RootLayout({

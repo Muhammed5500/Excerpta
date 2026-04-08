@@ -228,9 +228,9 @@ export default function HeroScene() {
           <span className="text-terracotta">distilled.</span>
         </h1>
 
-        <p className="mt-6 text-base md:text-lg text-slate-light max-w-lg leading-relaxed">
-          Blockchain, AI, game theory ve daha fazlasından
-          seçilmiş araştırma ve makaleler — tek bir yerde.
+        <p className="mt-6 text-base md:text-lg text-slate-medium max-w-lg leading-relaxed">
+          Curated research and articles on blockchain, AI,
+          game theory, and more — all in one place.
         </p>
 
         <div className="absolute bottom-10 flex flex-col items-center gap-2 animate-bounce">

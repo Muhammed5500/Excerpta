@@ -4,9 +4,9 @@ export default function Hero() {
       <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-light text-slate-primary leading-[1.15] tracking-tight max-w-2xl">
         Research, distilled.
       </h1>
-      <p className="mt-5 text-lg md:text-xl text-slate-light max-w-xl leading-relaxed">
-        Blockchain, AI, game theory ve daha fazlasından
-        seçilmiş araştırma ve makaleler — tek bir yerde.
+      <p className="mt-5 text-lg md:text-xl text-slate-medium max-w-xl leading-relaxed">
+        Curated research and articles on blockchain, AI,
+        game theory, and more — all in one place.
       </p>
     </section>
   );
