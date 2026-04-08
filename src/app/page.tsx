@@ -1,17 +1,13 @@
 "use client";
 
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
 import ArticleCard from "@/components/ArticleCard";
 import Footer from "@/components/Footer";
 import { Article, Category, CATEGORY_LABELS } from "@/lib/types";
 import { useLocalStorage } from "@/lib/useLocalStorage";
-
-const HeroScene = lazy(() => import("@/components/HeroScene"));
-const SceneBackground = lazy(() =>
-  import("@/components/HeroScene").then((mod) => ({ default: mod.SceneBackground }))
-);
 
 interface CategoryPreview {
   category: Category;
@@ -19,10 +15,10 @@ interface CategoryPreview {
   articles: Article[];
 }
 
-// Static fallback hero (no Three.js)
+// Static fallback hero (no Three.js) — shown while HeroScene lazy-loads
 function FallbackHero() {
   return (
-    <section className="h-[70vh] flex flex-col items-center justify-center px-6 text-center">
+    <section className="h-[100vh] flex flex-col items-center justify-center px-6 text-center">
       <div className="mb-6">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full card-bg backdrop-blur-sm border border-border-light">
           <span className="w-1.5 h-1.5 rounded-full bg-terracotta animate-pulse" />
@@ -39,13 +35,21 @@ function FallbackHero() {
   );
 }
 
+const HeroScene = dynamic(() => import("@/components/HeroScene"), {
+  ssr: false,
+  loading: () => <FallbackHero />,
+});
+const SceneBackground = dynamic(
+  () => import("@/components/HeroScene").then((mod) => ({ default: mod.SceneBackground })),
+  { ssr: false }
+);
+
 export default function Home() {
   const [categories, setCategories] = useState<CategoryPreview[]>([]);
   const [total, setTotal] = useState(0);
   const [totalSources, setTotalSources] = useState(0);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [sceneReady, setSceneReady] = useState(false);
   const [bookmarks, setBookmarks] = useLocalStorage<string[]>("rh-bookmarks", []);
   const [readArticles] = useLocalStorage<string[]>("rh-read", []);
 
@@ -64,36 +68,20 @@ export default function Home() {
     })();
   }, []);
 
-  // Delay Three.js load until after content is painted
-  useEffect(() => {
-    const timer = setTimeout(() => setSceneReady(true), 1500);
-    return () => clearTimeout(timer);
-  }, []);
-
   const toggleBookmark = (id: string) => {
     setBookmarks((prev) => prev.includes(id) ? prev.filter((b) => b !== id) : [...prev, id]);
   };
 
   return (
     <div className="flex flex-col min-h-full relative">
-      {/* 3D background — loads after content */}
-      {sceneReady && (
-        <Suspense fallback={null}>
-          <SceneBackground />
-        </Suspense>
-      )}
+      {/* 3D background — lazy loaded, no SSR */}
+      <SceneBackground />
 
       <Navbar activeCategory="all" onCategoryChange={() => {}} />
 
       <main className="flex-1 relative z-10">
-        {/* Hero — fallback first, 3D when ready */}
-        {sceneReady ? (
-          <Suspense fallback={<FallbackHero />}>
-            <HeroScene />
-          </Suspense>
-        ) : (
-          <FallbackHero />
-        )}
+        {/* Hero — FallbackHero shown while Three.js lazy-loads */}
+        <HeroScene />
 
         {/* Stats */}
         <div className="max-w-[1200px] mx-auto px-6 md:px-10 mb-12">
