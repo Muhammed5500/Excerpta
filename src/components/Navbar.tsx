@@ -30,9 +30,19 @@ export default function Navbar({
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-7 h-7 rounded-full bg-terracotta flex items-center justify-center">
-              <span className="text-white text-xs font-bold">E</span>
-            </div>
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 32 32"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="text-terracotta"
+              aria-label="Excerpta"
+            >
+              <line x1="6" y1="8"  x2="26" y2="8"  stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+              <line x1="6" y1="16" x2="15" y2="16" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+              <line x1="6" y1="24" x2="26" y2="24" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+            </svg>
             <span className="text-slate-primary font-semibold text-lg tracking-tight">
               Excerpta
             </span>
