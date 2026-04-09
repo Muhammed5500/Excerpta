@@ -282,6 +282,17 @@ export async function fetchGitHubRepo(
 // ============================================================
 // 7. ARXIV API — paginate all results for a query
 // ============================================================
+
+/** Build an arXiv date-range suffix: submittedDate:[YYYYMMDD0000 TO YYYYMMDD2359] */
+function arxivDateRange(days: number): string {
+  const end = new Date();
+  const start = new Date();
+  start.setDate(start.getDate() - days);
+  const fmt = (d: Date) =>
+    `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
+  return `submittedDate:[${fmt(start)}0000 TO ${fmt(end)}2359]`;
+}
+
 export async function fetchArxiv(
   query: string,
   sourceName: string,
@@ -289,16 +300,19 @@ export async function fetchArxiv(
   category: Category,
   subcategory: string,
   authorFilter?: string,
-  maxTotal: number = 500
+  maxTotal: number = 500,
+  days: number = 0
 ): Promise<Article[]> {
   const results: Article[] = [];
-  const batchSize = 100;
+  const batchSize = 500;
   let start = 0;
   let total = Infinity;
 
+  const fullQuery = days > 0 ? `${query} AND ${arxivDateRange(days)}` : query;
+
   while (start < total && start < maxTotal) {
     try {
-      const url = `https://export.arxiv.org/api/query?search_query=${encodeURIComponent(query)}&sortBy=submittedDate&sortOrder=descending&start=${start}&max_results=${batchSize}`;
+      const url = `https://export.arxiv.org/api/query?search_query=${encodeURIComponent(fullQuery)}&sortBy=submittedDate&sortOrder=descending&start=${start}&max_results=${batchSize}`;
       const res = await fetch(url, { headers: FETCH_HEADERS });
       const xml = await res.text();
 

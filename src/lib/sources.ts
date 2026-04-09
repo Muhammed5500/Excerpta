@@ -33,9 +33,6 @@ export const sources: Source[] = [
   { name: "Barnabé Monnot", url: "https://barnabe.substack.com", feedUrl: "https://barnabe.substack.com/feed", type: "rss", category: "blockchain", subcategory: "consensus-researchers" },
   { name: "Jon Charbonneau", url: "https://joncharbonneau.substack.com", feedUrl: "https://joncharbonneau.substack.com/feed", type: "rss", category: "blockchain", subcategory: "consensus-researchers" },
 
-  // === Researchers: Yiling Chen (Harvard, prediction markets & mechanism design) ===
-  { name: "Yiling Chen (arXiv)", url: "https://arxiv.org/search/?query=yiling+chen&searchtype=author", feedUrl: "https://arxiv.org/search/?query=au:yiling+chen&searchtype=author&abstracts=show&order=-announced_date_first&size=25", type: "scrape", category: "game-theory", subcategory: "math-decision" },
-
   // === Researchers: DeFi & MEV ===
   { name: "Hasu (Uncommon Core)", url: "https://uncommoncore.co", feedUrl: "https://uncommoncore.co/feed", type: "rss", category: "blockchain", subcategory: "defi-mev" },
   { name: "Flashbots Research", url: "https://writings.flashbots.net", feedUrl: "https://writings.flashbots.net/rss.xml", type: "rss", category: "blockchain", subcategory: "defi-mev" },

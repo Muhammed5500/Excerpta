@@ -85,8 +85,8 @@ function buildFullFetchJobs(category?: string | null, subcategory?: string | nul
     jobs.push({ sourceName: "LessWrong", fetcher: () => fetchLessWrong("LessWrong", "game-theory", "math-decision", 1000) });
 
   // ========== ARXIV API (paginated, full) ==========
-  if (inc("game-theory", "math-decision"))
-    jobs.push({ sourceName: "Yiling Chen (arXiv)", fetcher: () => fetchArxiv('au:"Yiling Chen" AND (cat:cs.GT OR cat:econ.TH OR cat:cs.MA)', "Yiling Chen (arXiv)", "https://scholar.harvard.edu/yiling", "game-theory", "math-decision", "Yiling Chen", 200) });
+  const ARXIV_DAYS = 30;   // last 30 days — wide enough to never miss a paper
+  const ARXIV_MAX  = 2000; // per-category cap (date filter keeps volume manageable)
 
   const arxivCats: { code: string; name: string; cat: Category }[] = [
     { code: "cs.CR", name: "arXiv: Cryptography", cat: "academic" },
@@ -98,7 +98,7 @@ function buildFullFetchJobs(category?: string | null, subcategory?: string | nul
   ];
   for (const ac of arxivCats) {
     if (inc(ac.cat, "arxiv"))
-      jobs.push({ sourceName: ac.name, fetcher: () => fetchArxiv(`cat:${ac.code}`, ac.name, `https://arxiv.org/list/${ac.code}/recent`, ac.cat, "arxiv", undefined, 500) });
+      jobs.push({ sourceName: ac.name, fetcher: () => fetchArxiv(`cat:${ac.code}`, ac.name, `https://arxiv.org/list/${ac.code}/recent`, ac.cat, "arxiv", undefined, ARXIV_MAX, ARXIV_DAYS) });
   }
 
   return jobs;
@@ -114,7 +114,6 @@ const FULL_FETCH_SOURCES = new Set([
   "Lilian Weng", "Quanta Magazine", "The Gradient",
   "EF Blog", "Solana News", "Monad Blog", "EigenCloud Blog",
   "LessWrong",
-  "Yiling Chen (arXiv)",
   "arXiv: Cryptography", "arXiv: Game Theory", "arXiv: AI",
   "arXiv: Machine Learning", "arXiv: Multi-Agent", "arXiv: Quantum Physics",
 ]);
@@ -164,10 +163,10 @@ export async function GET(request: Request) {
   });
   await Promise.allSettled(rssPromises);
 
-  // 2. Full-fetch jobs in batches of 4
+  // 2. Full-fetch jobs in batches of 6
   const fullJobs = buildFullFetchJobs(category, subcategory);
-  for (let i = 0; i < fullJobs.length; i += 4) {
-    const batch = fullJobs.slice(i, i + 4);
+  for (let i = 0; i < fullJobs.length; i += 6) {
+    const batch = fullJobs.slice(i, i + 6);
     await Promise.allSettled(
       batch.map(async (job) => {
         const result = await job.fetcher();
