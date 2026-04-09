@@ -6,7 +6,7 @@ Built with Next.js 16, React 19, and deployed on Vercel.
 
 ## What It Does
 
-Excerpta automatically ingests articles from diverse sources using 9 different fetching strategies, caches them efficiently, and presents them through a clean, searchable interface with category browsing, timeline views, and personal curation tools.
+Excerpta automatically ingests articles from diverse sources using 9 different fetching strategies, caches them efficiently, and presents them through a clean, searchable interface with category browsing and personal curation tools.
 
 ### Knowledge Categories
 
@@ -34,7 +34,6 @@ Excerpta automatically ingests articles from diverse sources using 9 different f
 
 - **Category & Subcategory Browsing** - Filter by ecosystem, research area, or source type
 - **Full-Text Search** - Search across titles, sources, excerpts, and authors
-- **Timeline View** - Articles grouped by week/month with trending source indicators
 - **Bookmarks & Read Tracking** - Local persistence via localStorage
 - **Article Reader** - In-app content extraction with clean reading view
 - **Custom Summaries & Tags** - Personal notes and tagging per article
@@ -64,7 +63,6 @@ src/
     globals.css               # Theme variables + Tailwind
     category/[slug]/          # Category detail with search & filters
     article/[id]/             # Article reader view
-    timeline/                 # Weekly/monthly grouped timeline
     bookmarks/                # Saved articles
     author/[name]/            # Filter by author/source
     api/

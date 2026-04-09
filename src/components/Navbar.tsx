@@ -67,9 +67,6 @@ export default function Navbar({
 
           {/* Page links + theme toggle */}
           <div className="hidden md:flex items-center gap-1 ml-2 pl-2 border-l border-border-light">
-            <Link href="/timeline" className="px-3 py-1.5 rounded-full text-sm text-slate-medium hover:text-slate-primary hover:bg-ivory-dark transition-all">
-              Timeline
-            </Link>
             <Link href="/bookmarks" className="px-3 py-1.5 rounded-full text-sm text-slate-medium hover:text-slate-primary hover:bg-ivory-dark transition-all">
               Bookmarks
             </Link>
